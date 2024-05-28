@@ -8,7 +8,7 @@ class Renderer {
 	 * @constructor
 	 * @param {number} scale - scale of the size of the canvas to draw the pixels
 	 */
-	constructor(scale) {
+	constructor(scale = 5) {
 		this.columns = 64;
 		this.rows = 32;
 		this.scale = scale;
@@ -42,9 +42,10 @@ class Renderer {
 			y += this.rows;
 		}
 
-		// Yet I don't understand
+		// This is the position in the display that is an array of the columns and rows combined
 		// prettier-ignore
 		let pixelLocation = x + (y * this.columns);
+		// If there was a 1 it changes it to 0 with an XOR, if it was a 0 it changes it to 1.
 		this.display[pixelLocation] ^= 1;
 
 		return !this.display[pixelLocation];
@@ -57,17 +58,32 @@ class Renderer {
 		this.display = new Array(this.columns * this.rows);
 	}
 
+	/**
+	 * Renders the pixels in the canvas, Runs 60 times per second
+	 */
 	render() {
+		// Clears the display each time it renders
 		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+		// Loop through our display array
 		for (let i = 0; i < this.display.length; i++) {
+			// Don't understand this two lines yet
 			let x = (i % this.columns) * this.scale;
-			let y = (i / this.columns) * this.scale;
+			let y = Math.floor(i / this.columns) * this.scale;
 
+			// If the display array has a 1 in i, draws the pixel
 			if (this.display[i]) {
-				this.context.fillStyle = '';
+				this.context.fillStyle = '#000';
+				// Draws the pixel in the position (x, y) with the scale size
+				this.context.fillRect(x, y, this.scale, this.scale);
 			}
 		}
+	}
+
+	testRender() {
+		this.setPixel(0, 0);
+		this.setPixel(5, 5);
+		this.setPixel(9, 9);
 	}
 }
 
