@@ -1,6 +1,10 @@
 import Renderer from './render.js';
+import Keyboard from './keyboard.js';
+import Speaker from './speaker.js';
 
 const renderer = new Renderer(10);
+const keyboard = new Keyboard();
+const speaker = new Speaker();
 
 let loop;
 
