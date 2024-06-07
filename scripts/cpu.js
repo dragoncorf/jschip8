@@ -192,23 +192,50 @@ class CPU {
 						}
 						break;
 					case 0x5:
+						this.v[0xf] = 0;
+
+						if (this.v[x] > this.v[y]) {
+							this.v[0xf] = 1;
+						}
+
+						this.v[x] -= this.v[y];
 						break;
 					case 0x6:
+						this.v[0xf] = this.v[x] & 0x1;
+
+						this.v[x] >>= 1;
 						break;
 					case 0x7:
+						this.v[0xf] = 0;
+
+						if (this.v[y] > this.v[x]) {
+							this.v[0xf] = 1;
+						}
+						this.v[x] -= this.v[y];
 						break;
 					case 0xe:
+						this.v[0xf] = this.v[x] & 0x80;
+						this.v[x] <<= 1;
+
 						break;
 				}
 
 				break;
 			case 0x9000:
+				if (this.v[x] !== this.v[y]) {
+					this.pc += 2;
+				}
 				break;
 			case 0xa000:
+				this.i = opcode & 0xfff;
 				break;
 			case 0xb000:
+				this.pc = (opcode & 0xfff) + this.v[0x0];
 				break;
 			case 0xc000:
+				let rand = Math.floor(Math.random * 0xff);
+
+				this.v[x] = rand & (opcode & 0xff);
 				break;
 			case 0xd000:
 				break;
