@@ -23,7 +23,7 @@ class CPU {
 		// No value on propose
 		this.stack = new Array();
 
-		this.pause = false;
+		this.paused = false;
 
 		this.speed = 10;
 	}
@@ -83,14 +83,14 @@ class CPU {
 
 	cycle() {
 		for (let i = 0; i < this.speed; i++) {
-			if (!this.pause) {
+			if (!this.paused) {
 				let opcode =
 					(this.memory[this.pc] << 8) | this.memory[this.pc + 1];
 				this.executeInstruction(opcode);
 			}
 		}
 
-		if (!this.pause) {
+		if (!this.paused) {
 			this.updateTimers();
 		}
 
@@ -284,11 +284,11 @@ class CPU {
 						this.v[x] = this.delayTimer;
 						break;
 					case 0x0a:
-						this.pause = true;
+						this.paused = true;
 
 						this.keyboard.onNextKeyPress = function (key) {
 							this.v[x] = key;
-							this.pause = false;
+							this.paused = false;
 						}.bind(this);
 						break;
 					case 0x15:
