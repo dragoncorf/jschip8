@@ -75,7 +75,7 @@ class CPU {
 			}
 		};
 
-		request.open('GET', '/roms' + romName);
+		request.open('GET', '/roms/' + romName);
 		request.responseType = 'arraybuffer';
 
 		request.send();
@@ -238,12 +238,40 @@ class CPU {
 				this.v[x] = rand & (opcode & 0xff);
 				break;
 			case 0xd000:
+				let width = 8;
+				let height = opcode & 0xf;
+
+				this.v[0xf] = 0;
+
+				for (let row = 0; row < height; row++) {
+					let sprite = this.memory[this.i + row];
+
+					for (let col = 0; col < width; col++) {
+						if (sprite & (0x80 > 0)) {
+							if (
+								this.renderer.setPixel(
+									this.v[x] + col,
+									this.v[y] + row
+								)
+							) {
+								this.v[0xf] = 1;
+							}
+						}
+						sprite <<= 1;
+					}
+				}
 				break;
 			case 0xe000:
 				switch (opcode & 0xff) {
 					case 0x9e:
+						if (this.keyboard.isKeyPressed(this.v[x])) {
+							this.pc += 2;
+						}
 						break;
 					case 0xa1:
+						if (!this.keyboard.isKeyPressed(this.v[x])) {
+							this.pc += 2;
+						}
 						break;
 				}
 
@@ -251,22 +279,55 @@ class CPU {
 			case 0xf000:
 				switch (opcode & 0xff) {
 					case 0x07:
+						this.v[x] = this.delayTimer;
 						break;
 					case 0x0a:
+						this.paused = true;
+
+						this.keyboard.onNextKeyPress = function (key) {
+							this.v[x] = key;
+							this.paused = false;
+						}.bind(this);
 						break;
 					case 0x15:
+						this.delayTimer = this.v[x];
 						break;
 					case 0x18:
+						this.soundTimer = this.v[x];
 						break;
 					case 0x1e:
+						this.i += this.v[x];
 						break;
 					case 0x29:
+						// The value of I is set to the location for the hexadecimal
+						// sprite corresponding to the value of Vx. (each sprite is 5 bytes long)
+						this.i = this.v[x] * 5;
 						break;
 					case 0x33:
+						this.memory[i] = parseInt(this.v[x] / 100);
+						this.memory[i + 1] = parseInt((this.v[x] % 100) / 10);
+						this.memory[i + 2] = parseInt(this.v[x] % 10);
+
 						break;
 					case 0x55:
+						for (
+							let registerIndex = 0;
+							registerIndex <= x;
+							registerIndex++
+						) {
+							this.memory[this.i + registerIndex] =
+								this.v[registerIndex];
+						}
 						break;
 					case 0x65:
+						for (
+							let registerIndex = 0;
+							registerIndex <= x;
+							registerIndex++
+						) {
+							this.v[registerIndex] =
+								this.memory[this.i + registerIndex];
+						}
 						break;
 				}
 
