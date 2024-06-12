@@ -20,7 +20,7 @@ class Renderer {
 		this.canvas = document.querySelector('canvas');
 		this.context = this.canvas.getContext('2d');
 		this.canvas.width = this.columns * this.scale;
-		this.canvas.height = this.columns * this.scale;
+		this.canvas.height = this.rows * this.scale;
 	}
 
 	/**

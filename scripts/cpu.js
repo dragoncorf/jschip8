@@ -75,7 +75,7 @@ class CPU {
 			}
 		};
 
-		request.open('GET', '/roms/' + romName);
+		request.open('GET', 'roms/' + romName);
 		request.responseType = 'arraybuffer';
 
 		request.send();
@@ -190,6 +190,8 @@ class CPU {
 						if (sum > 0xff) {
 							this.v[0xf] = 0x1;
 						}
+
+						this.v[x] = sum;
 						break;
 					case 0x5:
 						this.v[0xf] = 0;
@@ -211,7 +213,7 @@ class CPU {
 						if (this.v[y] > this.v[x]) {
 							this.v[0xf] = 1;
 						}
-						this.v[x] -= this.v[y];
+						this.v[x] = this.v[y] - this.v[x];
 						break;
 					case 0xe:
 						this.v[0xf] = this.v[x] & 0x80;
