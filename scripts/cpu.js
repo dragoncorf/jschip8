@@ -90,7 +90,7 @@ class CPU {
 			}
 		}
 
-		if (!this.paused) {
+		if (!this.pause) {
 			this.updateTimers();
 		}
 
@@ -235,7 +235,7 @@ class CPU {
 				this.pc = (opcode & 0xfff) + this.v[0x0];
 				break;
 			case 0xc000:
-				let rand = Math.floor(Math.random * 0xff);
+				let rand = Math.floor(Math.random() * 0xff);
 
 				this.v[x] = rand & (opcode & 0xff);
 				break;
@@ -249,7 +249,7 @@ class CPU {
 					let sprite = this.memory[this.i + row];
 
 					for (let col = 0; col < width; col++) {
-						if (sprite & (0x80 > 0)) {
+						if ((sprite & 0x80) > 0) {
 							if (
 								this.renderer.setPixel(
 									this.v[x] + col,
@@ -284,11 +284,11 @@ class CPU {
 						this.v[x] = this.delayTimer;
 						break;
 					case 0x0a:
-						this.paused = true;
+						this.pause = true;
 
 						this.keyboard.onNextKeyPress = function (key) {
 							this.v[x] = key;
-							this.paused = false;
+							this.pause = false;
 						}.bind(this);
 						break;
 					case 0x15:
@@ -306,9 +306,11 @@ class CPU {
 						this.i = this.v[x] * 5;
 						break;
 					case 0x33:
-						this.memory[i] = parseInt(this.v[x] / 100);
-						this.memory[i + 1] = parseInt((this.v[x] % 100) / 10);
-						this.memory[i + 2] = parseInt(this.v[x] % 10);
+						this.memory[this.i] = parseInt(this.v[x] / 100);
+						this.memory[this.i + 1] = parseInt(
+							(this.v[x] % 100) / 10
+						);
+						this.memory[this.i + 2] = parseInt(this.v[x] % 10);
 
 						break;
 					case 0x55:
